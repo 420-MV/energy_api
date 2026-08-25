@@ -57,6 +57,19 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Structure à obtenir :
+
+```text
+src/buildings/
+├── dto/
+│   └── create-building.dto.ts
+├── entities/
+│   └── building.entity.ts
+├── buildings.controller.ts
+├── buildings.module.ts
+└── buildings.service.ts
+```
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
