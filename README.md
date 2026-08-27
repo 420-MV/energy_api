@@ -214,6 +214,10 @@ Pour signaler une vulnérabilité, utiliser le mécanisme de signalement privé 
 - authentification et autorisation;
 - observabilité et déploiement automatisé.
 
+## Documentation
+
+- [Architecture de la plateforme](docs/architecture.md)
+
 ## Licence
 
 Consulter le fichier `LICENSE` à la racine du dépôt pour connaître les conditions d’utilisation et de redistribution.
