@@ -36,9 +36,8 @@ export class BuildingsService {
   update(id: string, updateBuildingDto: UpdateBuildingDto): Building {
     const building: Building = this.findOne(id);
     
-    console.log(id, updateBuildingDto)
     Object.assign(building, updateBuildingDto);
-    building.updatedAt = new Date().toISOString();
+    building.updatedAt = new Date();
 
     return building;
   }

@@ -6,8 +6,8 @@ export class Building {
     name: string;
     address?: string;
     yearBuilt: number;
-    createdAt: string;
-    updatedAt: string;
+    createdAt: Date;
+    updatedAt: Date;
 
     
     constructor(name: string, code: string, yearBuilt: number, address?: string) {
@@ -17,8 +17,8 @@ export class Building {
         this.code = code;
         address??this.address;
         this.yearBuilt = yearBuilt;
-        this.createdAt = new Date().toISOString();
-        this.updatedAt = new Date().toISOString();
+        this.createdAt = new Date();
+        this.updatedAt = new Date();
     }
 
     /**
