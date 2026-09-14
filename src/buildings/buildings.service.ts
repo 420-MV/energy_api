@@ -12,13 +12,9 @@ export class BuildingsService {
   }
   
   findOne(id: string): Building {
-    const building: Building | undefined = this.buildings.find((building: Building) => building.id === id);
+    const index: number = this.findBuildingIndex(id);
 
-    if(!building){
-      throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
-    }
-
-    return building;
+    return this.buildings.at(index)!;
   }
 
   create(createBuildingDto: CreateBuildingDto) {
@@ -43,11 +39,17 @@ export class BuildingsService {
   }
 
   remove(id: string) {
-    const index: number =  this.buildings.findIndex((building: Building) => building.id === id);
+    const index: number =  this.findBuildingIndex(id);
+    this.buildings.splice(index, 1);
+  }
+
+  private findBuildingIndex(id: string): number{
+    const index: number = this.buildings.findIndex((building: Building) => building.id === id);
+    
     if(index === -1){
       throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
     }
 
-    this.buildings.splice(index, 1);
+    return index;
   }
 }
