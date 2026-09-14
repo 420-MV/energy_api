@@ -9,7 +9,7 @@ export class RoomsService {
 
   create(createRoomDto: CreateRoomDto) {
     const newRoom: Room = new Room(createRoomDto);
-    
+
     this.rooms.push(newRoom);
 
     return newRoom;
@@ -19,19 +19,15 @@ export class RoomsService {
     return this.rooms;
   }
 
-  findOne(id: string) {
-    const room: Room | undefined = this.rooms.find((room: Room) => room.id === id);
-    
-    if(!room){
-      throw new NotFoundException(`Le local avec l'ID "${id}" n'existe pas.`);
-    }
+  findOne(id: string): Room {
+    const index: number = this.findRoomIndex(id);
 
-    return room;
+    return this.rooms.at(index)!;
   }
 
   update(id: string, updateRoomDto: UpdateRoomDto) {
     const room: Room = this.findOne(id);
-        
+
     Object.assign(room, updateRoomDto);
     room.updatedAt = new Date();
 
@@ -39,11 +35,17 @@ export class RoomsService {
   }
 
   remove(id: string): void {
-    const index: number =  this.rooms.findIndex((room: Room) => room.id === id);
-    if(index === -1){
+    const index: number = this.findRoomIndex(id);
+    this.rooms.splice(index, 1);
+  }
+
+  private findRoomIndex(id: string): number {
+    const index: number = this.rooms.findIndex((room: Room) => room.id === id);
+
+    if (index === -1) {
       throw new NotFoundException(`Le local avec l'ID "${id}" n'existe pas.`);
     }
 
-    this.rooms.splice(index, 1);
+    return index;
   }
 }
