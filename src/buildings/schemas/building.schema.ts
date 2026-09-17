@@ -19,7 +19,7 @@ export class Building extends Document {
   createdAt: Date;
   
   @Prop({ default: () => new Date() })
-  modifiedAt: Date;
+  updatedAt: Date;
 }
 
 export const BuildingSchema = SchemaFactory.createForClass(Building);

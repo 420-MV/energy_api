@@ -2,54 +2,40 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
 import { Building } from './schemas/building.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { BuildingsRepository } from './buildings.repository';
 
 
 @Injectable()
 export class BuildingsService {
-  // Injecter Model à l'aide de InjectModel dans le constructeur de BuildingService
-  constructor(
-    @InjectModel(Building.name) private readonly buildingModel: Model<Building>,
-  ) {}
-  
-  async findAll(): Promise<Building[]> {
-    return this.buildingModel.find().exec();
+
+  constructor(private readonly buildingsRepository: BuildingsRepository) { }
+
+  findAll(): Promise<Building[]> {
+    return this.buildingsRepository.findAll();
   }
-  
-  async findOne(id: string): Promise<Building> {
-    const building = await this.buildingModel.findById(id).exec();
+
+  async findById(id: string): Promise<Building> {
+    const building = await this.buildingsRepository.findById(id);
     if (!building) {
       throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
     }
     return building;
   }
 
-  async create(createBuildingDto: CreateBuildingDto) : Promise<Building> {
-    return this.buildingModel.create(createBuildingDto);
-  }
-  
-  async update(id: string, updateBuildingDto: UpdateBuildingDto): Promise<Building> {
-    const building = await this.buildingModel
-    .findByIdAndUpdate(
-      {_id: id},
-      { $set: updateBuildingDto },
-      {
-        new: true,
-        runValidators: true,
-      },
-    )
-    .exec();
-  
-    if (!building) {
-      throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
-    }
-    
-    return building;
+  create(data: CreateBuildingDto): Promise<Building> {
+    return this.buildingsRepository.create(data);
   }
 
-  async remove(id: string) {
-    const deletedBuilding = await this.buildingModel.findByIdAndDelete(id).exec();
+  async update(id: string, data: UpdateBuildingDto): Promise<Building> {
+    const updatedBuilding = await this.buildingsRepository.update(id, data);
+    if (!updatedBuilding) {
+      throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
+    }
+    return updatedBuilding;
+  }
+
+  async remove(id: string): Promise<void> {
+    const deletedBuilding = await this.buildingsRepository.remove(id);
     if (!deletedBuilding) {
       throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
     }

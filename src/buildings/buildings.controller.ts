@@ -29,7 +29,7 @@ export class BuildingsController {
     description: 'Données invalides.',
     type: ProblemDetailsDto,
   })
-  async create(@Body() createBuildingDto: CreateBuildingDto) {
+  create(@Body() createBuildingDto: CreateBuildingDto) {
     return this.buildingsService.create(createBuildingDto);
   }
 
@@ -49,7 +49,7 @@ export class BuildingsController {
     format: 'uuid',
   })
   findOne(@Param('id') id: string) {
-    return this.buildingsService.findOne(id);
+    return this.buildingsService.findById(id);
   }
 
   @Patch(':id')
