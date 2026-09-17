@@ -1,51 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { Room } from './entities/room.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Room } from './schemas/room.schema';
 
 @Injectable()
 export class RoomsService {
-  private readonly rooms: Room[] = [];
+  constructor(@InjectModel(Room.name) private readonly roomModel: Model<Room>) {}
 
-  create(createRoomDto: CreateRoomDto) {
-    const newRoom: Room = new Room(createRoomDto);
-
-    this.rooms.push(newRoom);
-
-    return newRoom;
+  create(dto: CreateRoomDto) {
+    return this.roomModel.create(dto);
   }
 
-  findAll() {
-    return this.rooms;
+  findAll() : Promise<Room[]>{
+    return this.roomModel.find().lean();
   }
 
-  findOne(id: string): Room {
-    const index: number = this.findRoomIndex(id);
-
-    return this.rooms.at(index)!;
-  }
-
-  update(id: string, updateRoomDto: UpdateRoomDto) {
-    const room: Room = this.findOne(id);
-
-    Object.assign(room, updateRoomDto);
-    room.updatedAt = new Date();
-
+  async findById(id: string) : Promise<Room>{
+    const room = await this.roomModel.findById(id).lean();
+    if (!room) {
+       throw new NotFoundException('Room not found');
+    }
     return room;
   }
 
-  remove(id: string): void {
-    const index: number = this.findRoomIndex(id);
-    this.rooms.splice(index, 1);
-  }
+  async update(id: string, updateRoomDto: UpdateRoomDto) : Promise<Room | null> {
+    const updated : Room | null = await this.roomModel.findByIdAndUpdate(id, updateRoomDto, { new: true }).exec();
 
-  private findRoomIndex(id: string): number {
-    const index: number = this.rooms.findIndex((room: Room) => room.id === id);
-
-    if (index === -1) {
-      throw new NotFoundException(`Le local avec l'ID "${id}" n'existe pas.`);
+    if (!updated) {
+        throw new NotFoundException(`Le local avec l'id ${id} n'existe pas.`);
     }
 
-    return index;
+    return updated;
+  }
+
+  async remove(id: string): Promise<void> {
+    const deleted = await this.roomModel.findByIdAndDelete({ _id: id }).lean().exec();
+
+    if (!deleted) {
+        throw new NotFoundException(`Le local avec l'id ${id} n'existe pas.`);
+    }
   }
 }

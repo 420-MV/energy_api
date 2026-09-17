@@ -29,7 +29,7 @@ export class BuildingsController {
     description: 'Données invalides.',
     type: ProblemDetailsDto,
   })
-  create(@Body() createBuildingDto: CreateBuildingDto) {
+  async create(@Body() createBuildingDto: CreateBuildingDto) {
     return this.buildingsService.create(createBuildingDto);
   }
 
@@ -38,7 +38,7 @@ export class BuildingsController {
     summary: 'Lister tous les bâtiments',
     description: 'Lister tous les bâtiments de la collection courante.',
   })
-  findAll() {
+  async findAll() {
     return this.buildingsService.findAll();
   }
 

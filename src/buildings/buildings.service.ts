@@ -1,55 +1,57 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBuildingDto } from './dto/create-building.dto';
 import { UpdateBuildingDto } from './dto/update-building.dto';
-import { Building } from './entities/building.entity';
+import { Building } from './schemas/building.schema';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+
 
 @Injectable()
 export class BuildingsService {
-  private readonly buildings: Building[] = [];
+  // Injecter Model à l'aide de InjectModel dans le constructeur de BuildingService
+  constructor(
+    @InjectModel(Building.name) private readonly buildingModel: Model<Building>,
+  ) {}
   
-  findAll(): Building[] {
-    return this.buildings;
+  async findAll(): Promise<Building[]> {
+    return this.buildingModel.find().exec();
   }
   
-  findOne(id: string): Building {
-    const index: number = this.findBuildingIndex(id);
-
-    return this.buildings.at(index)!;
-  }
-
-  create(createBuildingDto: CreateBuildingDto) {
-    const {code, name, yearBuilt, address} = createBuildingDto;
-    const newBuilding: Building = new Building(code, name, yearBuilt, address);
-    
-    // On fusionne les données reçues dans notre nouvelle instance
-    Object.assign(newBuilding, createBuildingDto);
-    
-    this.buildings.push(newBuilding);
-
-    return newBuilding;
-  }
-  
-  update(id: string, updateBuildingDto: UpdateBuildingDto): Building {
-    const building: Building = this.findOne(id);
-    
-    Object.assign(building, updateBuildingDto);
-    building.updatedAt = new Date();
-
+  async findOne(id: string): Promise<Building> {
+    const building = await this.buildingModel.findById(id).exec();
+    if (!building) {
+      throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
+    }
     return building;
   }
 
-  remove(id: string) {
-    const index: number =  this.findBuildingIndex(id);
-    this.buildings.splice(index, 1);
+  async create(createBuildingDto: CreateBuildingDto) : Promise<Building> {
+    return this.buildingModel.create(createBuildingDto);
   }
-
-  private findBuildingIndex(id: string): number{
-    const index: number = this.buildings.findIndex((building: Building) => building.id === id);
-    
-    if(index === -1){
+  
+  async update(id: string, updateBuildingDto: UpdateBuildingDto): Promise<Building> {
+    const building = await this.buildingModel
+    .findByIdAndUpdate(
+      {_id: id},
+      { $set: updateBuildingDto },
+      {
+        new: true,
+        runValidators: true,
+      },
+    )
+    .exec();
+  
+    if (!building) {
       throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
     }
+    
+    return building;
+  }
 
-    return index;
+  async remove(id: string) {
+    const deletedBuilding = await this.buildingModel.findByIdAndDelete(id).exec();
+    if (!deletedBuilding) {
+      throw new NotFoundException(`Le bâtiment avec l'ID "${id}" n'existe pas.`);
+    }
   }
 }
