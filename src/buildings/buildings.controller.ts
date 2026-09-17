@@ -38,7 +38,7 @@ export class BuildingsController {
     summary: 'Lister tous les bâtiments',
     description: 'Lister tous les bâtiments de la collection courante.',
   })
-  findAll() {
+  async findAll() {
     return this.buildingsService.findAll();
   }
 
@@ -49,7 +49,7 @@ export class BuildingsController {
     format: 'uuid',
   })
   findOne(@Param('id') id: string) {
-    return this.buildingsService.findOne(id);
+    return this.buildingsService.findById(id);
   }
 
   @Patch(':id')

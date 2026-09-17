@@ -1,51 +1,42 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
-import { Room } from './entities/room.entity';
+import { Room } from './schemas/room.schema';
+import { RoomsRepository } from './rooms.repository';
 
 @Injectable()
 export class RoomsService {
-  private readonly rooms: Room[] = [];
 
-  create(createRoomDto: CreateRoomDto) {
-    const newRoom: Room = new Room(createRoomDto);
+  constructor(private readonly roomsRepository: RoomsRepository) { }
 
-    this.rooms.push(newRoom);
-
-    return newRoom;
+  findAll(): Promise<Room[]> {
+    return this.roomsRepository.findAll();
   }
 
-  findAll() {
-    return this.rooms;
-  }
-
-  findOne(id: string): Room {
-    const index: number = this.findRoomIndex(id);
-
-    return this.rooms.at(index)!;
-  }
-
-  update(id: string, updateRoomDto: UpdateRoomDto) {
-    const room: Room = this.findOne(id);
-
-    Object.assign(room, updateRoomDto);
-    room.updatedAt = new Date();
-
+  async findById(id: string): Promise<Room> {
+    const room = await this.roomsRepository.findById(id);
+    if (!room) {
+      throw new NotFoundException(`Le local avec l'ID "${id}" n'existe pas.`);
+    }
     return room;
   }
 
-  remove(id: string): void {
-    const index: number = this.findRoomIndex(id);
-    this.rooms.splice(index, 1);
+  create(data: CreateRoomDto): Promise<Room> {
+    return this.roomsRepository.create(data);
   }
 
-  private findRoomIndex(id: string): number {
-    const index: number = this.rooms.findIndex((room: Room) => room.id === id);
-
-    if (index === -1) {
+  async update(id: string, data: UpdateRoomDto): Promise<Room> {
+    const updatedRoom = await this.roomsRepository.update(id, data);
+    if (!updatedRoom) {
       throw new NotFoundException(`Le local avec l'ID "${id}" n'existe pas.`);
     }
+    return updatedRoom;
+  }
 
-    return index;
+  async remove(id: string): Promise<void> {
+    const deletedRoom = await this.roomsRepository.remove(id);
+    if (!deletedRoom) {
+      throw new NotFoundException(`Le local avec l'ID "${id}" n'existe pas.`);
+    }
   }
 }
