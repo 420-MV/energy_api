@@ -1,5 +1,20 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
+export class ValidationIssueDto {
+  @ApiProperty({
+    example: 'capacity',
+  })
+  field!: string;
+
+  @ApiProperty({
+    type: [String],
+    example: [
+      'La capacité doit être supérieure ou égale à 1.',
+    ],
+  })
+  messages!: string[];
+}
+
 export class ProblemDetailsDto {
     @ApiProperty({ example: 'about:blank' })
     type!: string;
@@ -19,8 +34,14 @@ export class ProblemDetailsDto {
     instance!: string;
 
     @ApiPropertyOptional({
-      type: [String],
+      type: [ValidationIssueDto],
       example: ['Le nom est obligatoire.'],
     })
-    errors?: string[];
+    errors?: ValidationIssueDto[];
+
+    @ApiProperty({ 
+      format: 'date-time',
+      example: new Date().toISOString() 
+    })
+    timestamp: string;
   }

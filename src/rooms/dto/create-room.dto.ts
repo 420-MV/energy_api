@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { RoomType } from "./room-type.enum";
+import { IsEnum, IsInt, IsMongoId, Matches, Max, Min } from "class-validator";
 
 
 export class CreateRoomDto {
@@ -7,11 +8,17 @@ export class CreateRoomDto {
         description: 'Code unique du local dans son bâtiment',
         example: 'D-112',
     })
+    @Matches(/^[A-Z]-\d{3}$/, {
+        message: 'Le code doit respecter le format A-000.',
+    })
     code!: string;
 
     @ApiProperty({
         description: 'Identifiant UUID du bâtiment',
         format: 'uuid',
+    })
+    @IsMongoId({
+        message: 'buildingId doit être un identifiant MongoDB valide.',
     })
     buildingId!: string;
 
@@ -21,6 +28,9 @@ export class CreateRoomDto {
         minimum: -5,
         maximum: 100,
     })
+    @IsInt()
+    @Min(-5)
+    @Max(100)
     floor!: number;
 
     @ApiPropertyOptional({
@@ -28,6 +38,10 @@ export class CreateRoomDto {
         enum: RoomType,
         example: RoomType.CLASSROOM,
         required: false,
+    })
+    @IsEnum(RoomType, {
+        message:
+        'Le type doit être classroom, laboratory, office ou common-area.',
     })
     type?: string;
 
@@ -38,5 +52,8 @@ export class CreateRoomDto {
         maximum: 100,
         required: false,
     })
+    @IsInt()
+    @Min(1)
+    @Max(1000)
     capacity?: number;
 }

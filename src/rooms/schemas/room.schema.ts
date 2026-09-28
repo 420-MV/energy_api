@@ -20,10 +20,10 @@ export class Room extends Document {
   @Prop({ required: true })
   capacity!: number;
 
-  @Prop({ default: null })
+  @Prop({ default: new Date() })
   createdAt?: Date;
 
-  @Prop({ default: null })
+  @Prop({ default: new Date() })
   updatedAt?: Date;
 }
 

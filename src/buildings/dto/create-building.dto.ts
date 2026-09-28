@@ -1,4 +1,6 @@
+import { Matches } from "@nestjs/class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from "class-validator";
 
 
 export class CreateBuildingDto {
@@ -8,6 +10,9 @@ export class CreateBuildingDto {
     minLength: 7,
     maxLength: 7,
   })
+  @Matches(/^(?:bld|BLD)-\d{3}$/, {
+    message: "Les code du bâtiment devrait suivre le format suivant : bld-xxx ou BLD-xxx ou x est un chiffre."
+  })
   code!: string; 
 
   @ApiProperty({
@@ -15,6 +20,8 @@ export class CreateBuildingDto {
     example: 'Pavillon principal',
     maxLength: 100,
   })
+  @IsString()
+  @MaxLength(100)
   name!: string;
 
   @ApiProperty({
@@ -23,6 +30,10 @@ export class CreateBuildingDto {
     minimum: 1800,
     maximum: 2026,
   })
+  @IsOptional()
+  @IsInt()
+  @Min(1500)
+  @Max(new Date().getFullYear())
   yearBuilt!: number;
 
   @ApiProperty({
@@ -31,5 +42,7 @@ export class CreateBuildingDto {
     minLength: 5,
     maxLength: 200,
   })
+  @IsOptional()
+  @IsString()
   address!: string;
 }
